@@ -16,13 +16,11 @@ jobs:
           POSTGRES_HOST_AUTH_METHOD: trust
       - image: circleci/redis:latest
     steps:
+      - run: echo "This is pipeline ID << pipeline.id >>"
       - checkout
       - node/install-packages:
           app-dir: packages/la-boite
           with-cache: true
-      - run:
-          name: examine pipeline variables
-          command: echo "This is pipeline #<< pipeline.number >>"
       - run:
           name: Compiling Typescript
           command: npx tsc
