@@ -16,7 +16,6 @@ jobs:
           POSTGRES_HOST_AUTH_METHOD: trust
       - image: circleci/redis:latest
     steps:
-      - run: echo "This is pipeline number << pipeline.number >>#<< pipeline.git.revision >>"
       - checkout
       - node/install-packages:
           app-dir: packages/la-boite
@@ -55,7 +54,7 @@ workflows:
                 command: docker run --detach --network=git-en-boite --name redis -h redis redis:latest
             - run:
                 name: Writing .build-number file
-                command: echo $CIRCLE_BUILD_NUM > packages/la-boite/.build-number
+                command: echo << pipeline.number >>#<< pipeline.git.revision >> > packages/la-boite/.build-number
           after_build:
             - run: 
                 name: Running tests in container
