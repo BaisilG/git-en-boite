@@ -16,7 +16,7 @@ jobs:
           POSTGRES_HOST_AUTH_METHOD: trust
       - image: circleci/redis:latest
     steps:
-      - run: echo "This is pipeline ID << pipeline.id >>"
+      - run: echo "This is pipeline number << pipeline.number >>#<< pipeline.git.revision >>"
       - checkout
       - node/install-packages:
           app-dir: packages/la-boite
