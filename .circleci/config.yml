@@ -15,14 +15,16 @@ jobs:
           POSTGRES_DB: git-en-boite-test
           POSTGRES_HOST_AUTH_METHOD: trust
       - image: circleci/redis:latest
+    environment:
+      CIRCLE_PIPELINE_NUM: << pipeline.number >>
     steps:
       - checkout
       - node/install-packages:
           app-dir: packages/la-boite
           with-cache: true
       - run:
-          name: examine CIRCLE_WORKFLOW_ID
-          command: echo $CIRCLE_WORKFLOW_ID
+          name: examine CIRCLE_PIPELINE_NUM
+          ommand: echo $CIRCLE_PIPELINE_NUM
       - run:
           name: Compiling Typescript
           command: npx tsc
