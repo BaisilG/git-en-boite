@@ -11,6 +11,9 @@ import {
   containsInAnyOrder,
   hasProperty,
   matchesPattern,
+  not,
+  equalTo,
+  willBe,
 } from 'hamjest'
 
 describe(LocalGitRepo.name, () => {
@@ -25,15 +28,19 @@ describe(LocalGitRepo.name, () => {
       const repoId = 'a-new-repo-id'
       const repoPath = path.resolve(root, repoId)
       const repo = await LocalGitRepo.open(repoPath)
-      const result = await repo.git('init')
+      const result = await repo.execGit('init')
       assertThat(result.stdout, startsWith('Initialized empty Git repository'))
     })
 
-    it('raises any error', async () => {
+    it('does not raise any error', async () => {
       const repoId = 'a-repo-id'
       const repoPath = path.resolve(root, repoId)
       const repo = await LocalGitRepo.open(repoPath)
-      return promiseThat(repo.git('not-a-command'), rejected())
+      await promiseThat(repo.execGit('not-a-command'), not(rejected()))
+      return promiseThat(
+        repo.execGit('not-a-command'),
+        willBe(hasProperty('exitCode', not(equalTo(0)))),
+      )
     })
   })
 
@@ -42,13 +49,13 @@ describe(LocalGitRepo.name, () => {
       const repoId = 'a-repo-id'
       const repoPath = path.resolve(root, repoId)
       const repo = await LocalGitRepo.open(repoPath)
-      await repo.git('init')
-      await repo.git('config', 'user.email', 'test@example.com')
-      await repo.git('config', 'user.name', 'Test User')
+      await repo.execGit('init')
+      await repo.execGit('config', 'user.email', 'test@example.com')
+      await repo.execGit('config', 'user.name', 'Test User')
       const branches = ['one', 'two']
       for (const branchName of branches) {
-        await repo.git('checkout', '-b', branchName)
-        await repo.git('commit', '--allow-empty', '-m "test"')
+        await repo.execGit('checkout', '-b', branchName)
+        await repo.execGit('commit', '--allow-empty', '-m "test"')
       }
       const refs = await repo.refs()
       assertThat(

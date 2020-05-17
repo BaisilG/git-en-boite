@@ -5,11 +5,30 @@ orbs:
   docker: circleci/docker@1.0.0
 
 jobs:
-  test-in-node:
+  test-command-bus:
+    docker:
+      - image: circleci/node:14.0.0
+    steps:
+      - checkout
+      - node/install-packages:
+          app-dir: packages/command-bus
+          with-cache: true
+          pkg-manager: yarn
+      - run:
+          name: Linting Typescript
+          command: yarn run lint
+          working_directory: packages/command-bus
+      - run:
+          name: Running tests
+          command: yarn run test
+          working_directory: packages/command-bus
+
+  test-la-boite:
     docker:
       - image: circleci/node:14.0.0
         environment:
-          GIT_EN_BOITE_PG_URL: postgres://postgres@localhost/git-en-boite-test
+          DATABASE_URL: postgres://postgres@localhost/git-en-boite-test
+          REDIS_URL: redis://localhost:6379
       - image: circleci/postgres:12.2
         environment:
           POSTGRES_DB: git-en-boite-test
@@ -20,33 +39,31 @@ jobs:
       - node/install-packages:
           app-dir: packages/la-boite
           with-cache: true
-      - run:
-          name: Compiling Typescript
-          command: npx tsc
-          working_directory: packages/la-boite
+          pkg-manager: yarn
       - run:
           name: Linting Typescript
-          command: npm run lint
+          command: yarn run lint
           working_directory: packages/la-boite
       - run:
           name: Running tests
-          command: ./bin/test
+          command: yarn run test
           working_directory: packages/la-boite
 
 workflows:
   version: 2.1
   build:
     jobs:
-      - test-in-node
+      - test-la-boite
+      - test-command-bus
       - docker/publish:
           image: smartbear/git-en-boite
-          path: packages/la-boite
-          tag: latest
+          path: .
+          tag: latest,stable
           before_build:
-            - run: 
+            - run:
                 name: Creating container network
                 command: docker network create git-en-boite
-            - run: 
+            - run:
                 name: Creating postgres container ready for tests
                 command: docker run --detach --network=git-en-boite --name postgres -h postgres -e POSTGRES_HOST_AUTH_METHOD=trust -e POSTGRES_DB=git-en-boite-test postgres:12.2
             - run:
@@ -56,11 +73,11 @@ workflows:
                 name: Writing .build-number file
                 command: echo << pipeline.number >>#$(echo << pipeline.git.revision >> | cut -c 1-6) > packages/la-boite/.build-number
           after_build:
-            - run: 
+            - run:
                 name: Running tests in container
-                command: docker run --network=git-en-boite -e GIT_EN_BOITE_PG_URL=postgres://postgres@postgres/git-en-boite-test -e REDIS_URL=redis://redis:6379 -i -t smartbear/git-en-boite:latest npm test
+                command: docker run --network=git-en-boite -e DATABASE_URL=postgres://postgres@postgres/git-en-boite-test -e REDIS_URL=redis://redis:6379 -i -t smartbear/git-en-boite:latest npm test
           filters:
             branches:
-              only: 
+              only:
                 - master
                 - ci
