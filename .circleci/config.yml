@@ -24,8 +24,7 @@ workflows:
   version: 2.1
   build:
     jobs:
-      - test-la-boite
-      - test-command-bus
+      - test
       - docker/publish:
           image: smartbear/git-en-boite
           path: .
