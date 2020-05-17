@@ -5,49 +5,20 @@ orbs:
   docker: circleci/docker@1.0.0
 
 jobs:
-  test-command-bus:
+  test:
     docker:
       - image: circleci/node:14.0.0
     steps:
       - checkout
       - node/install-packages:
-          app-dir: packages/command-bus
           with-cache: true
           pkg-manager: yarn
       - run:
           name: Linting Typescript
-          command: yarn run lint
-          working_directory: packages/command-bus
+          command: yarn workspaces run lint
       - run:
           name: Running tests
-          command: yarn run test
-          working_directory: packages/command-bus
-
-  test-la-boite:
-    docker:
-      - image: circleci/node:14.0.0
-        environment:
-          DATABASE_URL: postgres://postgres@localhost/git-en-boite-test
-          REDIS_URL: redis://localhost:6379
-      - image: circleci/postgres:12.2
-        environment:
-          POSTGRES_DB: git-en-boite-test
-          POSTGRES_HOST_AUTH_METHOD: trust
-      - image: circleci/redis:5.0.9
-    steps:
-      - checkout
-      - node/install-packages:
-          app-dir: packages/la-boite
-          with-cache: true
-          pkg-manager: yarn
-      - run:
-          name: Linting Typescript
-          command: yarn run lint
-          working_directory: packages/la-boite
-      - run:
-          name: Running tests
-          command: yarn run test
-          working_directory: packages/la-boite
+          command: yarn workspaces run test
 
 workflows:
   version: 2.1
