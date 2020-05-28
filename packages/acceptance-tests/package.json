@@ -1,0 +1,29 @@
+{
+  "name": "git-en-boite-acceptance-tests",
+  "version": "0.0.0",
+  "description": "HTTP API Gateway for git-en-boite",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "NODE_ENV=test TS_NODE_TRANSPILE_ONLY=1 cucumber-js --require-module ts-node/register --require 'features/**/*.ts'",
+    "lint": "tsc --noEmit && eslint '*/**/*.ts' --quiet --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/smartbear/git-en-boite.git"
+  },
+  "keywords": [
+    "git"
+  ],
+  "author": "Matt Wynne <matt@mattwynne.net>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/smartbear/git-en-boite/issues"
+  },
+  "homepage": "https://github.com/smartbear/git-en-boite#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "supertest": "^5.0.0-0",
+    "cucumber": "^6.0.5",
+    "cucumber-pretty": "^6.0.0"
+  }
+}

@@ -11,6 +11,7 @@
     "packages/core",
     "packages/git-adapter",
     "packages/git-port",
-    "packages/la-boite"
+    "packages/la-boite",
+    "packages/acceptance-tests"
   ]
 }
