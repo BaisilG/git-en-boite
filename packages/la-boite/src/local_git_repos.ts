@@ -12,7 +12,7 @@ import { Connect, Fetch, GetRefs } from 'git-en-boite-git-port'
 import { ConnectTask, FetchTask, RepoTaskScheduler } from 'git-en-boite-task-scheduler-port'
 import path from 'path'
 import { TinyTypeOf } from 'tiny-types'
-import {Ref} from 'git-en-boite-core'
+import { Ref } from 'git-en-boite-core'
 
 class RepoPath extends TinyTypeOf<string>() {
   static for(basePath: string, repoId: string): RepoPath {
@@ -59,7 +59,7 @@ export class LocalGitRepos implements GitRepos {
     if (!this.exists(repoId)) return QueryResult.from()
     const repoPath = RepoPath.for(this.basePath, repoId).value
     const git = await new BareRepoFactory().open(repoPath)
-    const refs : Ref[] = await git(GetRefs.all())
+    const refs: Ref[] = await git(GetRefs.all())
     const branches: Branch[] = refs
       .filter(ref => ref.isRemote)
       .map(ref => {
