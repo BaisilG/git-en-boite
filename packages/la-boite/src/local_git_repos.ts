@@ -12,6 +12,7 @@ import { Connect, Fetch, GetRefs } from 'git-en-boite-git-port'
 import { ConnectTask, FetchTask, RepoTaskScheduler } from 'git-en-boite-task-scheduler-port'
 import path from 'path'
 import { TinyTypeOf } from 'tiny-types'
+import {Ref} from 'git-en-boite-core'
 
 class RepoPath extends TinyTypeOf<string>() {
   static for(basePath: string, repoId: string): RepoPath {
@@ -27,12 +28,10 @@ export class LocalGitRepos implements GitRepos {
   ) {
     this.taskScheduler = taskScheduler
       .withProcessor('connect', async ({ repoPath, remoteUrl }) => {
-        const git = new BareRepoFactory().open(repoPath)
-        await git(Connect.toUrl(remoteUrl))
+        const git = await new BareRepoFactory().open(repoPath)
       })
       .withProcessor('fetch', async ({ repoPath }) => {
-        const git = new BareRepoFactory().open(repoPath)
-        await git(Fetch.fromOrigin())
+        const git = await new BareRepoFactory().open(repoPath)
       })
   }
 
@@ -59,8 +58,8 @@ export class LocalGitRepos implements GitRepos {
   async getInfo(repoId: string): Promise<QueryResult<GitRepoInfo>> {
     if (!this.exists(repoId)) return QueryResult.from()
     const repoPath = RepoPath.for(this.basePath, repoId).value
-    const git = new BareRepoFactory().open(repoPath)
-    const refs = await git(GetRefs.all())
+    const git = await new BareRepoFactory().open(repoPath)
+    const refs : Ref[] = await git(GetRefs.all())
     const branches: Branch[] = refs
       .filter(ref => ref.isRemote)
       .map(ref => {

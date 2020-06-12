@@ -35,8 +35,10 @@ export function commandBus<Protocol extends ValidProtocol<Protocol>>() {
         handlers.set(handler[0], handler[1])
       }
 
-      const dispatch: Dispatch<Protocol> = message =>
+      const dispatch: Dispatch<Protocol> = message => {
+        console.log(message)
         handlers.get(message.constructor)(context, message, dispatch)
+      }
       return dispatch
     },
   }
